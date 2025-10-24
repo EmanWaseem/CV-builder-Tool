@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> CV Builder Tool</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 25px;
+        }
+        
+        /* ====== FORM PANEL ====== */
+        .form-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            overflow-y: auto;
+            max-height: calc(100vh - 40px);
+        }
+        
+        .form-panel::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .form-panel::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        .form-panel::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            border-radius: 10px;
+        }
+        
+        .panel-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .panel-header h1 {
+            font-family: 'Lora', serif;
+            font-size: 36px;
+            background: linear-gradient(135deg, #1e3c72, #7e22ce);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+        
+        .panel-header p {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .form-section {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 2px dashed #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #7e22ce;
+            box-shadow: 0 0 0 4px rgba(126, 34, 206, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .image-upload-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .image-preview {
+            width: 130px;
+            height: 130px;
+            border-radius: 20px;
+            margin: 0 auto 18px;
+            background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-placeholder {
+            color: #999;
+            font-size: 48px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .file-input-btn {
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .dynamic-entry {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e8e8e8;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .entry-number {
+            font-weight: 700;
+            color: #7e22ce;
+            font-size: 15px;
+        }
+        
+        .remove-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        
+        .add-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .download-section {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 25px;
+            margin: -35px -35px 0;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 15px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        
+        /* ====== PREVIEW PANEL ====== */
+        .preview-panel {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            background: linear-gradient(135deg, #1e3c72, #7e22ce);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .preview-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+        }
+        
+        .cv-preview-container {
+            padding: 25px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        
+        /* ====== CV TEMPLATE ====== */
+        #cvTemplate {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+        
+        .cv-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            padding: 50px 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .cv-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: white;
+            clip-path: polygon(0 100%, 100% 100%, 100% 0, 50% 100%, 0 0);
+        }
+        
+        .cv-profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            margin: 0 auto 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cv-profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cv-profile-image-placeholder {
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .cv-header-name {
+            font-family: 'Lora', serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .cv-header-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        
+        .cv-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        
+        .cv-left {
+            background: #f8f9fa;
+            padding: 40px 35px;
+        }
+        
+        .cv-right {
+            background: white;
+            padding: 40px 35px;
+        }
+        
+        .cv-section {
+            margin-bottom: 35px;
+        }
+        
+        .cv-section-title {
+            font-family: 'Lora', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #7e22ce;
+            position: relative;
+        }
+        
+        .cv-section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #f59e0b;
+        }
+        
+        .cv-about-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #4b5563;
+            text-align: justify;
+        }
+        
+        .cv-contact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #374151;
+        }
+        
+        .cv-contact-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .cv-skill-item {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 5px 8px 5px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e3c72;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .cv-language-item {
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 5px 8px 5px 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        
+        .cv-timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 25px;
+            border-left: 3px solid #e5e7eb;
+        }
+        
+        .cv-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7e22ce, #1e3c72);
+            border: 3px solid white;
+        }
+        
+        .cv-timeline-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 6px;
+        }
+        
+        .cv-timeline-date {
+            display: inline-block;
+            font-size: 12px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .cv-timeline-location {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        
+        .cv-timeline-desc {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 13px;
+        }
+        
+        @media (max-width: 968px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .cv-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- FORM PANEL -->
+        <div class="form-panel">
+            <div class="panel-header">
+                <h1>🎨 CV Builder</h1>
+                <p>Create your professional resume in minutes</p>
+            </div>
+            
+            <!-- PERSONAL INFO -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">👤</span>
+                    Personal Information
+                </h3>
+                
+                <div class="image-upload-container">
+                    <div class="image-preview" id="imagePreview">
+                        <span class="image-placeholder">📷</span>
+                    </div>
+                    <div class="file-input-wrapper">
+                        <button class="file-input-btn">📤 Upload Photo</button>
+                        <input type="file" id="photoUpload" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-input" id="fullName" placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Professional Title *</label>
+                    <input type="text" class="form-input" id="jobTitle" placeholder="Web Developer">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">About / Summary</label>
+                    <textarea class="form-textarea" id="aboutText" placeholder="Write a brief professional summary..."></textarea>
+                </div>
+            </div>
+            
+            <!-- CONTACT INFO -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">📞</span>
+                    Contact Information
+                </h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-input" id="phone" placeholder="+92 300 1234567">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" placeholder="your.email@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">LinkedIn</label>
+                    <input type="text" class="form-input" id="linkedin" placeholder="linkedin.com/in/yourprofile">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Website / Portfolio</label>
+                    <input type="text" class="form-input" id="website" placeholder="www.yourwebsite.com">
+                </div>
+            </div>
+            
+            <!-- EDUCATION -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🎓</span>
+                    Education
+                </h3>
+                <div id="educationList"></div>
+                <button class="add-btn" onclick="app.addEducation()">+ Add Education</button>
+            </div>
+            
+            <!-- SKILLS -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">💻</span>
+                    Skills
+                </h3>
+                <div id="skillsList"></div>
+                <button class="add-btn" onclick="app.addSkill()">+ Add Skill</button>
+            </div>
+            
+            <!-- LANGUAGES -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🌍</span>
+                    Languages
+                </h3>
+                <div id="languagesList"></div>
+                <button class="add-btn" onclick="app.addLanguage()">+ Add Language</button>
+            </div>
+            
+            <!-- CERTIFICATIONS -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🏆</span>
+                    Certifications
+                </h3>
+                <div id="certificationsList"></div>
+                <button class="add-btn" onclick="app.addCertification()">+ Add Certification</button>
+            </div>
+            
+            <!-- DOWNLOAD BUTTON -->
+            <div class="download-section">
+                <button class="download-btn" onclick="app.downloadPDF()">📥 Download CV as PDF</button>
+            </div>
+        </div>
+        
+        <!-- PREVIEW PANEL -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2>📄 Live Preview</h2>
+            </div>
+            <div class="cv-preview-container">
+                <div id="cvTemplate">
+                    <div class="cv-header">
+                        <div class="cv-profile-image" id="cvProfileImage">
+                            <span class="cv-profile-image-placeholder">📷</span>
+                        </div>
+                        <h1 class="cv-header-name" id="cvName">Your Name</h1>
+                        <p class="cv-header-title" id="cvTitle">Your Professional Title</p>
+                    </div>
+                    
+                    <div class="cv-content">
+                        <div class="cv-left">
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">About Me</h2>
+                                <p class="cv-about-text" id="cvAbout">Your professional summary will appear here.</p>
+                            </div>
+                            
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">Contact</h2>
+                                <div id="cvContactList">
+                                    <div class="empty-state">Add your contact information</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">Languages</h2>
+                                <div id="cvLanguagesList">
+                                    <div class="empty-state">Add languages you speak</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cv-right">
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">Education</h2>
+                                <div id="cvEducationList">
+                                    <div class="empty-state">Add your education background</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">Skills</h2>
+                                <div id="cvSkillsList">
+                                    <div class="empty-state">Add your professional skills</div>
+                                </div>
+                            </div>
+                            
+                            <div class="cv-section">
+                                <h2 class="cv-section-title">Certifications</h2>
+                                <div id="cvCertificationList">
+                                    <div class="empty-state">Add your certifications</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // MAIN APPLICATION OBJECT
+        const app = {
+            data: {
+                education: [],
+                skills: [],
+                languages: [],
+                certifications: [],
+                image: null
+            },
+            
+            // INITIALIZE
+            init() {
+                console.log('🚀 CV Builder Starting...');
+                this.setupPersonalInfo();
+                this.setupContactInfo();
+                this.setupImageUpload();
+                console.log('✅ CV Builder Ready!');
+            },
+            
+            // PERSONAL INFO
+            setupPersonalInfo() {
+                document.getElementById('fullName').addEventListener('input', (e) => {
+                    const name = e.target.value || 'Your Name';
+                    document.getElementById('cvName').textContent = name;
+                    console.log('✅ Name updated:', name);
+                });
+                
+                document.getElementById('jobTitle').addEventListener('input', (e) => {
+                    const title = e.target.value || 'Your Professional Title';
+                    document.getElementById('cvTitle').textContent = title;
+                    console.log('✅ Job title updated:', title);
+                });
+                
+                document.getElementById('aboutText').addEventListener('input', (e) => {
+                    const about = e.target.value || 'Your professional summary will appear here.';
+                    document.getElementById('cvAbout').textContent = about;
+                    console.log('✅ About text updated');
+                });
+            },
+            
+            // CONTACT INFO
+            setupContactInfo() {
+                ['phone', 'email', 'linkedin', 'website'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => this.updateContactInfo());
+                });
+            },
+            
+            updateContactInfo() {
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+                const linkedin = document.getElementById('linkedin').value;
+                const website = document.getElementById('website').value;
+                
+                let html = '';
+                if (phone) html += `<div class="cv-contact-item"><div class="cv-contact-icon">📞</div><div>${phone}</div></div>`;
+                if (email) html += `<div class="cv-contact-item"><div class="cv-contact-icon">✉️</div><div>${email}</div></div>`;
+                if (linkedin) html += `<div class="cv-contact-item"><div class="cv-contact-icon">💼</div><div>${linkedin}</div></div>`;
+                if (website) html += `<div class="cv-contact-item"><div class="cv-contact-icon">🌐</div><div>${website}</div></div>`;
+                
+                document.getElementById('cvContactList').innerHTML = html || '<div class="empty-state">Add your contact information</div>';
+                console.log('✅ Contact info updated');
+            },
+            
+            // IMAGE UPLOAD
+            setupImageUpload() {
+                document.getElementById('photoUpload').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            this.data.image = event.target.result;
+                            document.getElementById('imagePreview').innerHTML = `<img src="${this.data.image}">`;
+                            document.getElementById('cvProfileImage').innerHTML = `<img src="${this.data.image}">`;
+                            console.log('✅ Image uploaded successfully!');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            },
+            
+            // EDUCATION
+            addEducation() {
+                const id = Date.now();
+                this.data.education.push({ id, degree: '', institution: '', year: '', description: '' });
+                console.log('✅ Education added! Total:', this.data.education.length);
+                this.renderEducation();
+            },
+            
+            removeEducation(id) {
+                this.data.education = this.data.education.filter(item => item.id !== id);
+                console.log('❌ Education removed! Remaining:', this.data.education.length);
+                this.renderEducation();
+            },
+            
+            updateEducation(id, field, value) {
+                const item = this.data.education.find(item => item.id === id);
+                if (item) {
+                    item[field] = value;
+                    this.renderEducationCV();
+                }
+            },
+            
+            renderEducation() {
+                const form = document.getElementById('educationList');
+                form.innerHTML = this.data.education.map((item, index) => `
+                    <div class="dynamic-entry">
+                        <div class="entry-header">
+                            <span class="entry-number">Education #${index + 1}</span>
+                            <button class="remove-btn" onclick="app.removeEducation(${item.id})">Remove</button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Degree / Program</label>
+                            <input type="text" class="form-input" placeholder="e.g., Bachelor of CS" 
+                                   value="${item.degree}" 
+                                   oninput="app.updateEducation(${item.id}, 'degree', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Institution</label>
+                            <input type="text" class="form-input" placeholder="e.g., University" 
+                                   value="${item.institution}" 
+                                   oninput="app.updateEducation(${item.id}, 'institution', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year</label>
+                            <input type="text" class="form-input" placeholder="e.g., 2020-2024" 
+                                   value="${item.year}" 
+                                   oninput="app.updateEducation(${item.id}, 'year', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" placeholder="Optional description" 
+                                      oninput="app.updateEducation(${item.id}, 'description', this.value)">${item.description}</textarea>
+                        </div>
+                    </div>
+                `).join('');
+                this.renderEducationCV();
+            },
+            
+            renderEducationCV() {
+                const cv = document.getElementById('cvEducationList');
+                if (this.data.education.length === 0) {
+                    cv.innerHTML = '<div class="empty-state">Add your education background</div>';
+                    return;
+                }
+                cv.innerHTML = this.data.education.map(item => `
+                    <div class="cv-timeline-item">
+                        ${item.degree ? `<h3 class="cv-timeline-title">${item.degree}</h3>` : ''}
+                        ${item.year ? `<span class="cv-timeline-date">${item.year}</span>` : ''}
+                        ${item.institution ? `<p class="cv-timeline-location">${item.institution}</p>` : ''}
+                        ${item.description ? `<p class="cv-timeline-desc">${item.description}</p>` : ''}
+                    </div>
+                `).join('');
+            },
+            
+            // SKILLS
+            addSkill() {
+                const id = Date.now();
+                this.data.skills.push({ id, name: '' });
+                console.log('✅ Skill added! Total:', this.data.skills.length);
+                this.renderSkills();
+            },
+            
+            removeSkill(id) {
+                this.data.skills = this.data.skills.filter(item => item.id !== id);
+                console.log('❌ Skill removed! Remaining:', this.data.skills.length);
+                this.renderSkills();
+            },
+            
+            updateSkill(id, value) {
+                const item = this.data.skills.find(item => item.id === id);
+                if (item) {
+                    item.name = value;
+                    this.renderSkillsCV();
+                }
+            },
+            
+            renderSkills() {
+                const form = document.getElementById('skillsList');
+                form.innerHTML = this.data.skills.map((item, index) => `
+                    <div class="dynamic-entry">
+                        <div class="entry-header">
+                            <span class="entry-number">Skill #${index + 1}</span>
+                            <button class="remove-btn" onclick="app.removeSkill(${item.id})">Remove</button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Skill Name</label>
+                            <input type="text" class="form-input" placeholder="e.g., JavaScript, HTML" 
+                                   value="${item.name}" 
+                                   oninput="app.updateSkill(${item.id}, this.value)">
+                        </div>
+                    </div>
+                `).join('');
+                this.renderSkillsCV();
+            },
+            
+            renderSkillsCV() {
+                const cv = document.getElementById('cvSkillsList');
+                if (this.data.skills.length === 0) {
+                    cv.innerHTML = '<div class="empty-state">Add your professional skills</div>';
+                    return;
+                }
+                cv.innerHTML = this.data.skills.map(item => 
+                    item.name ? `<span class="cv-skill-item">${item.name}</span>` : ''
+                ).join('');
+            },
+            
+            // LANGUAGES
+            addLanguage() {
+                const id = Date.now();
+                this.data.languages.push({ id, name: '' });
+                console.log('✅ Language added! Total:', this.data.languages.length);
+                this.renderLanguages();
+            },
+            
+            removeLanguage(id) {
+                this.data.languages = this.data.languages.filter(item => item.id !== id);
+                console.log('❌ Language removed! Remaining:', this.data.languages.length);
+                this.renderLanguages();
+            },
+            
+            updateLanguage(id, value) {
+                const item = this.data.languages.find(item => item.id === id);
+                if (item) {
+                    item.name = value;
+                    this.renderLanguagesCV();
+                }
+            },
+            
+            renderLanguages() {
+                const form = document.getElementById('languagesList');
+                form.innerHTML = this.data.languages.map((item, index) => `
+                    <div class="dynamic-entry">
+                        <div class="entry-header">
+                            <span class="entry-number">Language #${index + 1}</span>
+                            <button class="remove-btn" onclick="app.removeLanguage(${item.id})">Remove</button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Language Name</label>
+                            <input type="text" class="form-input" placeholder="e.g., HTML, CSS" 
+                                   value="${item.name}" 
+                                   oninput="app.updateLanguage(${item.id}, this.value)">
+                        </div>
+                    </div>
+                `).join('');
+                this.renderLanguagesCV();
+            },
+            
+            renderLanguagesCV() {
+                const cv = document.getElementById('cvLanguagesList');
+                if (this.data.languages.length === 0) {
+                    cv.innerHTML = '<div class="empty-state">Add languages you speak</div>';
+                    return;
+                }
+                cv.innerHTML = this.data.languages.map(item => 
+                    item.name ? `<span class="cv-language-item">${item.name}</span>` : ''
+                ).join('');
+            },
+            
+            // CERTIFICATIONS
+            addCertification() {
+                const id = Date.now();
+                this.data.certifications.push({ id, title: '', issuer: '', date: '', description: '' });
+                console.log('✅ Certification added! Total:', this.data.certifications.length);
+                this.renderCertifications();
+            },
+            
+            removeCertification(id) {
+                this.data.certifications = this.data.certifications.filter(item => item.id !== id);
+                console.log('❌ Certification removed! Remaining:', this.data.certifications.length);
+                this.renderCertifications();
+            },
+            
+            updateCertification(id, field, value) {
+                const item = this.data.certifications.find(item => item.id === id);
+                if (item) {
+                    item[field] = value;
+                    this.renderCertificationsCV();
+                }
+            },
+            
+            renderCertifications() {
+                const form = document.getElementById('certificationsList');
+                form.innerHTML = this.data.certifications.map((item, index) => `
+                    <div class="dynamic-entry">
+                        <div class="entry-header">
+                            <span class="entry-number">Certification #${index + 1}</span>
+                            <button class="remove-btn" onclick="app.removeCertification(${item.id})">Remove</button>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Certification Title</label>
+                            <input type="text" class="form-input" placeholder="e.g., Web Development" 
+                                   value="${item.title}" 
+                                   oninput="app.updateCertification(${item.id}, 'title', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Issuing Organization</label>
+                            <input type="text" class="form-input" placeholder="e.g., Arfa Tower" 
+                                   value="${item.issuer}" 
+                                   oninput="app.updateCertification(${item.id}, 'issuer', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="text" class="form-input" placeholder="e.g., January 2024" 
+                                   value="${item.date}" 
+                                   oninput="app.updateCertification(${item.id}, 'date', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" placeholder="Optional description" 
+                                      oninput="app.updateCertification(${item.id}, 'description', this.value)">${item.description}</textarea>
+                        </div>
+                    </div>
+                `).join('');
+                this.renderCertificationsCV();
+            },
+            
+            renderCertificationsCV() {
+                const cv = document.getElementById('cvCertificationList');
+                if (this.data.certifications.length === 0) {
+                    cv.innerHTML = '<div class="empty-state">Add your certifications</div>';
+                    return;
+                }
+                cv.innerHTML = this.data.certifications.map(item => `
+                    <div class="cv-timeline-item">
+                        ${item.title ? `<h3 class="cv-timeline-title">${item.title}</h3>` : ''}
+                        ${item.date ? `<span class="cv-timeline-date">${item.date}</span>` : ''}
+                        ${item.issuer ? `<p class="cv-timeline-location">${item.issuer}</p>` : ''}
+                        ${item.description ? `<p class="cv-timeline-desc">${item.description}</p>` : ''}
+                    </div>
+                `).join('');
+            },
+            
+            // PDF DOWNLOAD
+            downloadPDF() {
+                console.log('📥 Starting PDF download...');
+                
+                const element = document.getElementById('cvTemplate');
+                const opt = {
+                    margin: 0,
+                    filename: 'My_Professional_CV.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                    console.log('✅ PDF downloaded successfully!');
+                    alert('✅ CV Downloaded Successfully!');
+                }).catch(err => {
+                    console.error('❌ PDF download failed:', err);
+                    alert('❌ Download failed. Please try again.');
+                });
+            }
+        };
+        
+        // START THE APPLICATION
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
